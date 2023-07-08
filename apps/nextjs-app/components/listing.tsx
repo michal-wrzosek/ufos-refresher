@@ -175,7 +175,7 @@ export const Listing = ({
       <ThumbnailSection>
         <Thumbnail
           style={{
-            backgroundImage: listing.data.thumbnail
+            backgroundImage: listing.data.thumbnail.startsWith('http')
               ? `url(${listing.data.thumbnail})`
               : '',
           }}
