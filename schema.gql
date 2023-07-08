@@ -1,0 +1,73 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ListingPreviewItem {
+  url: String!
+  width: Float!
+  height: Float!
+}
+
+type ListingPreview {
+  source: ListingPreviewItem!
+  resolutions: [ListingPreviewItem!]!
+}
+
+type ListingType {
+  id: String!
+  kind: String!
+  title: String!
+  subreddit: String!
+  permalink: String!
+  author: String!
+  numberOfComments: Float!
+  url: String!
+  createdUTC: Float!
+  thumbnail: String
+  thumbnailWidth: Float
+  thumbnailHeight: Float
+  previews: [ListingPreview!]!
+  isVideo: Boolean!
+  isNSFW: Boolean!
+  ups: Float!
+  downs: Float!
+  sentiment: String!
+  updateId: Float!
+}
+
+input ListingPreviewItemInput {
+  url: String!
+  width: Float!
+  height: Float!
+}
+
+input ListingPreviewInput {
+  source: ListingPreviewItemInput!
+  resolutions: [ListingPreviewItemInput!]!
+}
+
+input ListingInputType {
+  id: String!
+  kind: String!
+  title: String!
+  subreddit: String!
+  permalink: String!
+  author: String!
+  numberOfComments: Float!
+  url: String!
+  createdUTC: Float!
+  thumbnail: String
+  thumbnailWidth: Float
+  thumbnailHeight: Float
+  previews: [ListingPreviewInput!]!
+  isVideo: Boolean!
+  isNSFW: Boolean!
+  ups: Float!
+  downs: Float!
+  sentiment: String!
+  updateId: Float!
+}
+
+type Query {
+  listings: [ListingType!]!
+}

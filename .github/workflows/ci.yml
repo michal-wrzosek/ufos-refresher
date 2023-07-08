@@ -1,0 +1,91 @@
+name: Deploy
+on:
+  workflow_dispatch:
+  # schedule:
+  # Everyday at 3:30am UTC (5:30am Amsterdam time)
+  # - cron: '30 3 * * *'
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.16'
+          cache: 'yarn'
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v2
+        with:
+          main-branch-name: 'master'
+
+      - run: |
+          echo "BASE: ${{ env.NX_BASE }}"
+          echo "HEAD: ${{ env.NX_HEAD }}"
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache yarn cache
+        uses: actions/cache@v3
+        id: cache-yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-
+
+      - name: Install all dependencies
+        run: yarn install --frozen-lockfile
+        if: |
+          steps.cache-yarn-cache.outputs.cache-hit != 'true' ||
+          steps.cache-node-modules.outputs.cache-hit != 'true'
+
+      - name: Generate news
+        run: npx nx run news-generator:serve --no-watch --configuration production
+        env:
+          NODE_ENV: 'production'
+          TEMP_DIR_PATH: '/no-temp-dir'
+          REDDIT_APP_ID: ${{ secrets.REDDIT_APP_ID }}
+          REDDIT_APP_SECRET: ${{ secrets.REDDIT_APP_SECRET }}
+          OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
+          MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+          MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+          MONGODB_DB: ${{ secrets.MONGODB_DB }}
+          MONGODB_DOMAIN: ${{ secrets.MONGODB_DOMAIN }}
+
+      - name: Build Gatsby app
+        run: npx nx run gatsby-app:build --configuration production --with-deps --skip-nx-cache
+        env:
+          NODE_ENV: 'production'
+          MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+          MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+          MONGODB_DB: ${{ secrets.MONGODB_DB }}
+          MONGODB_DOMAIN: ${{ secrets.MONGODB_DOMAIN }}
+
+      - name: Deploy to Gatsby app to Netlify
+        uses: nwtgck/actions-netlify@v1.2
+        with:
+          publish-dir: './apps/gatsby-app/public'
+          production-branch: master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: 'Deploy from GitHub Actions'
+          enable-pull-request-comment: false
+          enable-commit-comment: false
+          overwrites-pull-request-comment: false
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 1
