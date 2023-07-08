@@ -4,8 +4,8 @@ import { RedditApiListing } from '../types/common';
 import { Listing } from '../components/listing';
 import styled from 'styled-components';
 
-const idsSeenLocalStorageKey = 'ids-seen';
-const useIdsSeenState = createPersistedState<string[]>(idsSeenLocalStorageKey);
+const useIsConfigured = createPersistedState<boolean>('is-configured');
+const useIdsSeenState = createPersistedState<string[]>('ids-seen');
 
 const Error = styled.div`
   font-size: 16px;
@@ -51,8 +51,9 @@ const Wrapper = styled.div`
 `;
 
 export const IndexPage = () => {
+  const [isConfigured, setIsConfigured] = useIsConfigured(false);
   const [idsSeen, setIdsSeen] = useIdsSeenState([]);
-  const [idsSeenLastTime] = useState(idsSeen);
+  const [idsSeenLastTime, setIdsSeenLastTime] = useState(idsSeen);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [listings, setListings] = useState<RedditApiListing[]>([]);
@@ -66,8 +67,15 @@ export const IndexPage = () => {
     (async () => {
       try {
         const response = await fetch('/api/listings', { method: 'GET' });
-        const data = await response.json();
+        const data: { listings: RedditApiListing[] } = await response.json();
         setListings(data.listings);
+
+        if (!isConfigured) {
+          const ids = data.listings.map((listing) => listing.data.id);
+          setIdsSeen(ids);
+          setIdsSeenLastTime(ids);
+          setIsConfigured(true);
+        }
       } catch (error) {
         console.error(error);
         setError(true);
