@@ -90,10 +90,9 @@ export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
   );
   const [ufosIdsSeen, setUfosIdsSeen] = useUfosIdsSeen(deprecatedIdsSeen);
 
-  const [aliensIsConfigured, setAliensIsConfigured] = useAliensIsConfigured(
-    deprecatedIsConfigured
-  );
-  const [aliensIdsSeen, setAliensIdsSeen] = useAliensIdsSeen(deprecatedIdsSeen);
+  const [aliensIsConfigured, setAliensIsConfigured] =
+    useAliensIsConfigured(false);
+  const [aliensIdsSeen, setAliensIdsSeen] = useAliensIdsSeen([]);
 
   const isConfigured =
     subreddit === 'ufos' ? ufosIsConfigured : aliensIsConfigured;
