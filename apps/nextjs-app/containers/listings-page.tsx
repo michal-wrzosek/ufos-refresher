@@ -189,15 +189,12 @@ export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
         </RepoLink>
       </Header>
       <Navigation>
-        <Link href={'/ufos'} className={subreddit === 'ufos' ? 'active' : ''}>
+        <a href={'/ufos'} className={subreddit === 'ufos' ? 'active' : ''}>
           r/UFOs
-        </Link>
-        <Link
-          href={'/aliens'}
-          className={subreddit === 'aliens' ? 'active' : ''}
-        >
+        </a>
+        <a href={'/aliens'} className={subreddit === 'aliens' ? 'active' : ''}>
           r/aliens
-        </Link>
+        </a>
       </Navigation>
       {loading ? <Loading>Loading...</Loading> : null}
       {error ? <Error>Error! Something went wrong.</Error> : null}
