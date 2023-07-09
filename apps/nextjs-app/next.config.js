@@ -17,6 +17,15 @@ const nextConfig = {
     // For other options, see https://styled-components.com/docs/tooling#babel-plugin
     styledComponents: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/ufos',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 const plugins = [

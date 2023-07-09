@@ -3,9 +3,35 @@ import createPersistedState from 'use-persisted-state';
 import { RedditApiListing } from '../types/common';
 import { Listing } from '../components/listing';
 import styled from 'styled-components';
+import Link from 'next/link';
 
-const useIsConfigured = createPersistedState<boolean>('is-configured');
-const useIdsSeenState = createPersistedState<string[]>('ids-seen');
+const useDeprecatedIsConfigured =
+  createPersistedState<boolean>('is-configured');
+const useDeprecatedIdsSeen = createPersistedState<string[]>('ids-seen');
+
+const useUfosIsConfigured = createPersistedState<boolean>('ufos:is-configured');
+const useUfosIdsSeen = createPersistedState<string[]>('ufos:ids-seen');
+
+const useAliensIsConfigured = createPersistedState<boolean>(
+  'aliens:is-configured'
+);
+const useAliensIdsSeen = createPersistedState<string[]>('aliens:ids-seen');
+
+const Navigation = styled.div`
+  display: flex;
+  gap: 16px;
+  text-decoration: underline;
+
+  > a {
+    &.active {
+      font-weight: bold;
+    }
+
+    :hover {
+      color: grey;
+    }
+  }
+`;
 
 const Error = styled.div`
   font-size: 16px;
@@ -50,10 +76,34 @@ const Wrapper = styled.div`
   gap: 16px;
 `;
 
-export const IndexPage = () => {
-  const [isConfigured, setIsConfigured] = useIsConfigured(false);
-  const [idsSeen, setIdsSeen] = useIdsSeenState([]);
+interface ListingsPageProps {
+  subreddit: 'ufos' | 'aliens';
+}
+
+export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
+  /** renaming the local storege to ufos specific because we're adding aliens now as well */
+  const [deprecatedIsConfigured] = useDeprecatedIsConfigured(false);
+  const [deprecatedIdsSeen] = useDeprecatedIdsSeen([]);
+
+  const [ufosIsConfigured, setUfosIsConfigured] = useUfosIsConfigured(
+    deprecatedIsConfigured
+  );
+  const [ufosIdsSeen, setUfosIdsSeen] = useUfosIdsSeen(deprecatedIdsSeen);
+
+  const [aliensIsConfigured, setAliensIsConfigured] = useAliensIsConfigured(
+    deprecatedIsConfigured
+  );
+  const [aliensIdsSeen, setAliensIdsSeen] = useAliensIdsSeen(deprecatedIdsSeen);
+
+  const isConfigured =
+    subreddit === 'ufos' ? ufosIsConfigured : aliensIsConfigured;
+  const setIsConfigured =
+    subreddit === 'ufos' ? setUfosIsConfigured : setAliensIsConfigured;
+  const idsSeen = subreddit === 'ufos' ? ufosIdsSeen : aliensIdsSeen;
+  const setIdsSeen = subreddit === 'ufos' ? setUfosIdsSeen : setAliensIdsSeen;
+
   const [idsSeenLastTime, setIdsSeenLastTime] = useState(idsSeen);
+
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [listings, setListings] = useState<RedditApiListing[]>([]);
@@ -66,7 +116,9 @@ export const IndexPage = () => {
   useEffect(() => {
     (async () => {
       try {
-        const response = await fetch('/api/listings', { method: 'GET' });
+        const response = await fetch(`/api/listings/${subreddit}`, {
+          method: 'GET',
+        });
         const data: { listings: RedditApiListing[] } = await response.json();
         setListings(data.listings);
 
@@ -126,7 +178,9 @@ export const IndexPage = () => {
   return (
     <Wrapper>
       <Header>
-        <PageTitle>r/UFOs refresher</PageTitle>
+        <PageTitle>
+          r/{subreddit === 'ufos' ? 'UFOs' : 'aliens'} refresher
+        </PageTitle>
         <RepoLink
           href="https://github.com/michal-wrzosek/ufos-refresher"
           target="_blank"
@@ -135,6 +189,17 @@ export const IndexPage = () => {
           Sourcecode: https://github.com/michal-wrzosek/ufos-refresher
         </RepoLink>
       </Header>
+      <Navigation>
+        <Link href={'/ufos'} className={subreddit === 'ufos' ? 'active' : ''}>
+          r/UFOs
+        </Link>
+        <Link
+          href={'/aliens'}
+          className={subreddit === 'aliens' ? 'active' : ''}
+        >
+          r/aliens
+        </Link>
+      </Navigation>
       {loading ? <Loading>Loading...</Loading> : null}
       {error ? <Error>Error! Something went wrong.</Error> : null}
       {!error && !loading ? (

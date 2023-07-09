@@ -1,20 +1,19 @@
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import axios from 'axios';
+import { z } from 'zod';
 import {
   HotLocation,
   RedditApiAccessTokenResponse,
   RedditApiHotResponse,
   RedditApiListing,
   SortTime,
-} from '../../../types/common';
+} from '../types/common';
 
-const configSchema = z.object({
+export const configSchema = z.object({
   REDDIT_APP_ID: z.string(),
   REDDIT_APP_SECRET: z.string(),
 });
 
-async function getAccessToken(appId: string, appSecret: string) {
+export async function getAccessToken(appId: string, appSecret: string) {
   const response = await axios.post<RedditApiAccessTokenResponse>(
     'https://www.reddit.com/api/v1/access_token',
     new URLSearchParams({ grant_type: 'client_credentials' }).toString(),
@@ -57,7 +56,7 @@ type FetchListingsProps =
   | FetchListingsHotProps
   | FetchListingsSortingProps;
 
-async function fetchListings(props: FetchListingsProps) {
+export async function fetchListings(props: FetchListingsProps) {
   const response = await axios.get<RedditApiHotResponse>(
     `https://oauth.reddit.com/r/${props.subreddit}/${
       props.kind
@@ -84,54 +83,11 @@ async function fetchListings(props: FetchListingsProps) {
   return response.data;
 }
 
-function getListOfUniqueListings(listings: RedditApiListing[]) {
+export function getListOfUniqueListings(listings: RedditApiListing[]) {
   return Object.values(
     listings.reduce<Record<string, RedditApiListing>>(
       (sum, listing) => ({ ...sum, [listing.data.id]: listing }),
       {}
     )
   );
-}
-
-let listings: RedditApiListing[] = [];
-/** 5 minutes */
-const queryInterval = 5 * 60 * 1000;
-let lastQueryTimestamp = 0;
-
-export async function GET() {
-  try {
-    if (lastQueryTimestamp + queryInterval > +new Date()) {
-      return NextResponse.json({ listings });
-    }
-
-    const config = configSchema.parse({
-      REDDIT_APP_ID: process.env.REDDIT_APP_ID,
-      REDDIT_APP_SECRET: process.env.REDDIT_APP_SECRET,
-    });
-
-    const accessToken = await getAccessToken(
-      config.REDDIT_APP_ID,
-      config.REDDIT_APP_SECRET
-    );
-
-    const listingsResponse1 = await fetchListings({
-      accessToken,
-      subreddit: 'UFOs',
-      kind: 'hot',
-      hotLocation: 'GLOBAL',
-      limit: 100,
-    });
-
-    listings = getListOfUniqueListings([...listingsResponse1.data.children]);
-
-    lastQueryTimestamp = +new Date();
-
-    return NextResponse.json({ listings });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
 }

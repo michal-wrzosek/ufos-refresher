@@ -1,13 +1,32 @@
-import styled from 'styled-components';
+import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
+import styled from 'styled-components';
+import { AiOutlineEye } from 'react-icons/ai';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { RedditApiListing } from '../types/common';
-import { useEffect } from 'react';
 import { mediaTablet } from '../styles/media-queries';
 
 dayjs.extend(relativeTime);
 
+const Seen = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 0 8px;
+  display: flex;
+  align-items: center;
+
+  span {
+    display: none;
+
+    ${mediaTablet} {
+      display: inline-block;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+  }
+`;
 const Comments = styled.div`
   padding: 0 8px;
   font-size: 12px;
@@ -135,7 +154,8 @@ export const Listing = ({
   onSee,
 }: ListingProps) => {
   const { ref, inView } = useInView({
-    threshold: 1,
+    threshold: 0.5,
+    rootMargin: '0% 0% -50% 0%',
   });
 
   useEffect(() => {
@@ -193,6 +213,12 @@ export const Listing = ({
           <Comments>{listing.data.num_comments} Comments</Comments>
         </Footer>
       </ContentSection>
+      {isSeen ? (
+        <Seen>
+          <span>Marked as seen</span>
+          <AiOutlineEye />
+        </Seen>
+      ) : null}
     </Wrapper>
   );
 };
