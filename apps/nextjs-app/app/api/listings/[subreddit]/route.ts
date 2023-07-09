@@ -48,7 +48,7 @@ export async function GET(
       subreddit: parsedSubreddit === 'ufos' ? 'UFOs' : 'aliens',
       kind: 'hot',
       hotLocation: 'GLOBAL',
-      limit: 100,
+      limit: 30,
     });
 
     listings[parsedSubreddit] = getListOfUniqueListings([
