@@ -3,7 +3,10 @@ import createPersistedState from 'use-persisted-state';
 import { RedditApiListing } from '../types/common';
 import { Listing } from '../components/listing';
 import styled from 'styled-components';
-import Link from 'next/link';
+
+const useIsUsingOldReddit = createPersistedState<boolean>(
+  'is-using-old-reddit'
+);
 
 const useDeprecatedIsConfigured =
   createPersistedState<boolean>('is-configured');
@@ -16,6 +19,19 @@ const useAliensIsConfigured = createPersistedState<boolean>(
   'aliens:is-configured'
 );
 const useAliensIdsSeen = createPersistedState<string[]>('aliens:ids-seen');
+
+const Checkbox = styled.input.attrs({ type: 'checkbox' })``;
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  align-self: flex-start;
+  cursor: pointer;
+
+  > span {
+    margin-left: 4px;
+  }
+`;
 
 const Navigation = styled.div`
   display: flex;
@@ -81,6 +97,8 @@ interface ListingsPageProps {
 }
 
 export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
+  const [isUsingOldReddit, setIsUsingOldReddit] = useIsUsingOldReddit(false);
+
   /** renaming the local storege to ufos specific because we're adding aliens now as well */
   const [deprecatedIsConfigured] = useDeprecatedIsConfigured(false);
   const [deprecatedIdsSeen] = useDeprecatedIdsSeen([]);
@@ -134,6 +152,7 @@ export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
         setLoading(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { listingsNotSeenLastTime, listingsSeenLastTime } = useMemo(
@@ -174,6 +193,10 @@ export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
     [setIdsSeen]
   );
 
+  const handleIsUsingOldRedditChange = useCallback(() => {
+    setIsUsingOldReddit((previous) => !previous);
+  }, [setIsUsingOldReddit]);
+
   return (
     <Wrapper>
       <Header>
@@ -196,6 +219,14 @@ export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
           r/aliens
         </a>
       </Navigation>
+      <CheckboxLabel>
+        <Checkbox
+          name="is-using-old-reddit"
+          checked={isUsingOldReddit}
+          onChange={handleIsUsingOldRedditChange}
+        />
+        <span>use links to old Reddit</span>
+      </CheckboxLabel>
       {loading ? <Loading>Loading...</Loading> : null}
       {error ? <Error>Error! Something went wrong.</Error> : null}
       {!error && !loading ? (
@@ -207,6 +238,7 @@ export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
               listing={listing}
               isSeen={isSeen}
               isSeenLastTime={false}
+              isUsingOldReddit={isUsingOldReddit}
               onSee={handleSee}
             />
           ))}
@@ -220,6 +252,7 @@ export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
               listing={listing}
               isSeen={true}
               isSeenLastTime={true}
+              isUsingOldReddit={isUsingOldReddit}
               onSee={handleSee}
             />
           ))}

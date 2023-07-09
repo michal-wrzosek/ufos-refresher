@@ -144,6 +144,7 @@ export interface ListingProps {
   listing: RedditApiListing;
   isSeen: boolean;
   isSeenLastTime: boolean;
+  isUsingOldReddit: boolean;
   onSee: (id: string) => void;
 }
 
@@ -151,6 +152,7 @@ export const Listing = ({
   listing,
   isSeen,
   isSeenLastTime,
+  isUsingOldReddit,
   onSee,
 }: ListingProps) => {
   const { ref, inView } = useInView({
@@ -179,7 +181,9 @@ export const Listing = ({
     <Wrapper
       ref={ref}
       $isSeenLastTime={isSeenLastTime}
-      href={`https://reddit.com${listing.data.permalink}`}
+      href={`https://${isUsingOldReddit ? 'old.' : ''}reddit.com${
+        listing.data.permalink
+      }`}
       target="_blank"
       rel="noopener noreferrer"
     >
