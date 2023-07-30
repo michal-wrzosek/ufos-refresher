@@ -83,7 +83,7 @@ const Header = styled.div`
 const Thumbnail = styled.div`
   width: 100%;
   height: 100%;
-  background-color: black;
+  background-color: ${({ theme }) => theme.borderColor};
   background-position: center center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -107,7 +107,7 @@ const ThumbnailSection = styled.div`
   width: 64px;
   height: 128px;
   flex-shrink: 0;
-  border-right: 1px solid black;
+  border-right: 1px solid ${({ theme }) => theme.borderColor};
 
   ${mediaTablet} {
     width: 128px;
@@ -119,7 +119,7 @@ const VotesSection = styled.div`
   flex-direction: column;
   justify-content: center;
   padding: 0 4px;
-  border-right: 1px solid black;
+  border-right: 1px solid ${({ theme }) => theme.borderColor};
   width: 64px;
   font-size: 12px;
 `;
@@ -128,7 +128,7 @@ const Wrapper = styled.a<{ $isSeenLastTime: boolean }>`
   position: relative;
   display: flex;
   width: 100%;
-  border: 1px solid black;
+  border: 1px solid ${({ theme }) => theme.borderColor};
   opacity: ${({ $isSeenLastTime }) => ($isSeenLastTime ? '0.6' : '')};
 
   :hover {

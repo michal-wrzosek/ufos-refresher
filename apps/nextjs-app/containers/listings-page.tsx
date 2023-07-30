@@ -3,6 +3,7 @@ import createPersistedState from 'use-persisted-state';
 import { RedditApiListing } from '../types/common';
 import { Listing } from '../components/listing';
 import styled from 'styled-components';
+import { useThemeMode } from '../styles/theme';
 
 const useIsUsingOldReddit = createPersistedState<boolean>(
   'is-using-old-reddit'
@@ -98,6 +99,7 @@ interface ListingsPageProps {
 
 export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
   const [isUsingOldReddit, setIsUsingOldReddit] = useIsUsingOldReddit(false);
+  const [themeMode, setThemeMode] = useThemeMode();
 
   /** renaming the local storege to ufos specific because we're adding aliens now as well */
   const [deprecatedIsConfigured] = useDeprecatedIsConfigured(false);
@@ -197,6 +199,12 @@ export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
     setIsUsingOldReddit((previous) => !previous);
   }, [setIsUsingOldReddit]);
 
+  const isUsingDarkMode = themeMode === 'dark';
+
+  const handleIsUsingDarkModeChange = useCallback(() => {
+    setThemeMode((previous) => (previous === 'dark' ? 'light' : 'dark'));
+  }, [setThemeMode]);
+
   return (
     <Wrapper>
       <Header>
@@ -226,6 +234,14 @@ export const ListingsPage = ({ subreddit }: ListingsPageProps) => {
           onChange={handleIsUsingOldRedditChange}
         />
         <span>use links to old Reddit</span>
+      </CheckboxLabel>
+      <CheckboxLabel>
+        <Checkbox
+          name="is-using-dark-mode"
+          checked={isUsingDarkMode}
+          onChange={handleIsUsingDarkModeChange}
+        />
+        <span>use dark mode</span>
       </CheckboxLabel>
       {loading ? <Loading>Loading...</Loading> : null}
       {error ? <Error>Error! Something went wrong.</Error> : null}

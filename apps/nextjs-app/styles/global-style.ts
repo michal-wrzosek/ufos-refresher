@@ -19,6 +19,8 @@ export const GlobalStyle = createGlobalStyle`
     font-family: inherit;
     line-height: inherit;
     margin: 0;
+    background: ${({ theme }) => theme.background};
+    color: ${({ theme }) => theme.fontColor};
   }
 
   h1,
