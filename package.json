@@ -5,7 +5,7 @@
   "engines": {
     "npm": "please-use-yarn",
     "yarn": "1.22",
-    "node": "18.16"
+    "node": "18"
   },
   "scripts": {
     "start": "nx serve",
