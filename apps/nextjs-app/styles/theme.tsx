@@ -12,8 +12,8 @@ export type CustomTheme = typeof lightTheme;
 
 export const darkTheme: CustomTheme = {
   background: '#000',
-  borderColor: '#FFF',
-  fontColor: '#FFF',
+  borderColor: '#bababa',
+  fontColor: '#bababa',
 };
 
 export type ThemeMode = 'light' | 'dark';

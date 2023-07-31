@@ -59,7 +59,8 @@ const Content = styled.div`
   font-size: 14px;
   padding: 0 8px;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  line-height: 16px;
+  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
 
@@ -72,7 +73,8 @@ const Header = styled.div`
   font-weight: bold;
   padding: 0 8px;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  line-height: 18px;
+  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
 
@@ -102,15 +104,17 @@ const ContentSection = styled.div`
   flex-grow: 1;
   width: 100%;
   overflow: hidden;
+  gap: 8px;
 `;
 const ThumbnailSection = styled.div`
-  width: 64px;
+  width: 128px;
   height: 128px;
   flex-shrink: 0;
   border-right: 1px solid ${({ theme }) => theme.borderColor};
 
   ${mediaTablet} {
     width: 128px;
+    height: 128px;
   }
 `;
 const VotesSection = styled.div`
@@ -120,20 +124,38 @@ const VotesSection = styled.div`
   justify-content: center;
   padding: 0 4px;
   border-right: 1px solid ${({ theme }) => theme.borderColor};
-  width: 64px;
+  width: 128px;
   font-size: 12px;
+  flex-grow: 1;
+
+  ${mediaTablet} {
+    width: 64px;
+  }
+`;
+const VotesAndThumbnail = styled.div`
+  display: flex;
+  flex-direction: column-reverse;
+
+  ${mediaTablet} {
+    flex-direction: row;
+  }
 `;
 
 const Wrapper = styled.a<{ $isSeenLastTime: boolean }>`
   position: relative;
   display: flex;
   width: 100%;
+  height: calc(128px + 4 * 16px + 4 * 18px);
   border: 1px solid ${({ theme }) => theme.borderColor};
   opacity: ${({ $isSeenLastTime }) => ($isSeenLastTime ? '0.6' : '')};
 
   :hover {
     border-color: red;
     opacity: 1;
+  }
+
+  ${mediaTablet} {
+    height: unset;
   }
 `;
 
@@ -187,24 +209,26 @@ export const Listing = ({
       target="_blank"
       rel="noopener noreferrer"
     >
-      <VotesSection>
-        <UpVotes>
-          {arrowUp} {upvotes}
-        </UpVotes>
-        <DownVotes>
-          {arrowDown} {downvotes}
-        </DownVotes>
-      </VotesSection>
+      <VotesAndThumbnail>
+        <VotesSection>
+          <UpVotes>
+            {arrowUp} {upvotes}
+          </UpVotes>
+          <DownVotes>
+            {arrowDown} {downvotes}
+          </DownVotes>
+        </VotesSection>
 
-      <ThumbnailSection>
-        <Thumbnail
-          style={{
-            backgroundImage: listing.data.thumbnail.startsWith('http')
-              ? `url(${listing.data.thumbnail})`
-              : '',
-          }}
-        />
-      </ThumbnailSection>
+        <ThumbnailSection>
+          <Thumbnail
+            style={{
+              backgroundImage: listing.data.thumbnail.startsWith('http')
+                ? `url(${listing.data.thumbnail})`
+                : '',
+            }}
+          />
+        </ThumbnailSection>
+      </VotesAndThumbnail>
 
       <ContentSection>
         <Header>{listing.data.title}</Header>

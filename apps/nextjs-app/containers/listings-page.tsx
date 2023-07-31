@@ -69,6 +69,7 @@ const NothingToSee = styled.div`
 const RepoLink = styled.a`
   font-size: 12px;
   text-decoration: underline;
+  align-self: flex-start;
 `;
 
 const PageTitle = styled.div`

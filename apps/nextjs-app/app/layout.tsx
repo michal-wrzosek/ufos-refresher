@@ -1,3 +1,5 @@
+import { NoSSR } from '../components/no-ssr';
+import { LayoutClient } from '../containers/layout-client';
 import { StyledComponentsRegistry } from './registry';
 
 export const metadata = {
@@ -44,7 +46,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+        <StyledComponentsRegistry>
+          <NoSSR>
+            <LayoutClient>{children}</LayoutClient>
+          </NoSSR>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );
